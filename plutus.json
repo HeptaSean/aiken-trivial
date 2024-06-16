@@ -1,6 +1,6 @@
 {
   "preamble": {
-    "title": "hepta/trivial",
+    "title": "heptasean/aiken-trivial",
     "description": "The most trivial validators: always_succeed and always_fail",
     "version": "1.0.0",
     "plutusVersion": "v2",

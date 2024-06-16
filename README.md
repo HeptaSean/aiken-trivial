@@ -86,7 +86,7 @@ before on all of the networks:
 | Validator         | Mainnet | Preprod | Preview |
 | ----------------- | ------- | ------- | ------- |
 | `always_succeeds` | [addr1wyu…wg9ye9](https://cardanoscan.io/address/7139c520d0627aafa728f7e4dd10142b77c257813c36f57e2cb88f72a5) | [addr_test1wqu…4q3ckq](https://preprod.cardanoscan.io/address/7039c520d0627aafa728f7e4dd10142b77c257813c36f57e2cb88f72a5) | [addr_test1wqu…4q3ckq](https://preview.cardanoscan.io/address/7039c520d0627aafa728f7e4dd10142b77c257813c36f57e2cb88f72a5) |
-| 'always_fails`    | [addr1w9n…cmcl8j](https://cardanoscan.io/address/7166a67769edd0c54d5f6ec8ba3925394bf0e4fc1f8bfbe3a131eb523c) | [addr_test1wpn…rnvrgh](https://preprod.cardanoscan.io/address/7066a67769edd0c54d5f6ec8ba3925394bf0e4fc1f8bfbe3a131eb523c) | [addr_test1wpn…rnvrgh](https://preview.cardanoscan.io/address/7066a67769edd0c54d5f6ec8ba3925394bf0e4fc1f8bfbe3a131eb523c) |
+| `always_fails`    | [addr1w9n…cmcl8j](https://cardanoscan.io/address/7166a67769edd0c54d5f6ec8ba3925394bf0e4fc1f8bfbe3a131eb523c) | [addr_test1wpn…rnvrgh](https://preprod.cardanoscan.io/address/7066a67769edd0c54d5f6ec8ba3925394bf0e4fc1f8bfbe3a131eb523c) | [addr_test1wpn…rnvrgh](https://preview.cardanoscan.io/address/7066a67769edd0c54d5f6ec8ba3925394bf0e4fc1f8bfbe3a131eb523c) |
 
 In order to use these validators with `cardano-cli`, we need them in the
 file format used by that. We can get it through `aiken blueprint convert`:
@@ -217,7 +217,7 @@ TODO:
 Although, the two validators in this article are the most trivial ones you
 can think of, they already gave us a lot of opportunity to explore how
 validator development for Cardano with Aiken works, how these validators
-can then be used from `cardano-cli`, how it looks like when transaction are
+can then be used from `cardano-cli`, how it looks like when transactions are
 successful and fail, …
 
 What is still obviously missing and outside the scope of this is:
