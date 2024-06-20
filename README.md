@@ -188,12 +188,164 @@ Moreover, there are some discussions if there is a way to get those
 accidentally locked assets back.
 
 ## Using the Validators with `cardano-cli`
-TODO:
-* On Preprod:
-* Put on addresses with all styles of datum
-* Spend from always_succeeds with all styles of datum
-* Try to spend from always_fails with all styles of datum
-* Show transaction grabbing the collateral
+We want to use these validators as spending validators to spend assets from
+UTxOs on their addresses.
+In order to be able to do that, we first have to put assets on these
+addresses.
+As good citizens of Cardano (and to not spend ADA that are actually worth
+anything), we use the Preprod testnet for this.
+
+We first put 5 ADA on the “always succeeds” address with a datum `"Datum"`
+put in the transaction output as a hash:
+```shell
+$ cardano-cli transaction build --testnet-magic 1 \
+> --tx-in 7cba3a25ba58bd7352a1554196d73c2beb1d6cd213fad587e79f5d5312d9b8c9#0 \
+> --tx-out addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq+5000000 \
+> --tx-out-datum-hash-value '"Datum"' \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+> --out-file /tmp/fund_succeed_1.json
+```
+After signing and submitting this transaction we can see it
+[on Cardanoscan](https://preprod.cardanoscan.io/transaction/d94ec1de08a5bf070473ada78833cea39a6ece98d0a48e6fb208c08268fd2bd7?tab=utxo).
+
+To spend this UTxO again, we need to provide `cardano-cli` with the script,
+the datum, and a redeemer.
+Moreover, a collateral input has to be given which will be used to pay the
+network in case the execution fails:
+```shell
+$ cardano-cli transaction build --testnet-magic 1 \
+> --tx-in d94ec1de08a5bf070473ada78833cea39a6ece98d0a48e6fb208c08268fd2bd7#0 \
+> --tx-in-script-file always_succeeds.V1.plutus \
+> --tx-in-datum-value '"Datum"' --tx-in-redeemer-value '"Spend"' \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+> --tx-in-collateral 6fa4f7cc6674a00395e1ca68854d47f086e3a408e2b31f75fb10a712494fc462#3 \
+> --out-file /tmp/spend_succeed_1.json
+```
+Also, this spending transaction can be seen
+[on chain](https://preprod.cardanoscan.io/transaction/74cec7379d2950b30252b7c683742b74cd42df704244ea8f75d5af7fb4c0ad41?tab=utxo).
+
+We can also tell `cardano-cli` to embed the datum in the transaction's
+witness set instead:
+```shell
+$ cardano-cli transaction build --testnet-magic 1 \
+> --tx-in d94ec1de08a5bf070473ada78833cea39a6ece98d0a48e6fb208c08268fd2bd7#1 \
+> --tx-out addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq+5000000 \
+> --tx-out-datum-embed-value '"Datum"' \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+> --out-file /tmp/fund_succeed_2.json
+```
+The difference is that the datum is now embedded in the transactions
+witness set and, e.g.,
+[Cardanoscan](https://preprod.cardanoscan.io/transaction/e0353625f3290dad3143ac17942bc440b12a1bc3c025c605f80406f0ecec8efe?tab=utxo)
+can tell us what the datum actually is right away, while that information
+was empty in the first example.
+
+For the spending transaction, we still have to give the datum explicitly.
+A spending application has to inspect the blockchain in search for the
+embedded datum information itself and then provide it, just like in the
+first example:
+```shell
+$ cardano-cli transaction build --testnet-magic 1 \
+> --tx-in e0353625f3290dad3143ac17942bc440b12a1bc3c025c605f80406f0ecec8efe#0 \
+> --tx-in-script-file always_succeeds.V1.plutus \
+> --tx-in-datum-value '"Datum"' --tx-in-redeemer-value '"Spend"' \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+> --tx-in-collateral 6fa4f7cc6674a00395e1ca68854d47f086e3a408e2b31f75fb10a712494fc462#3 \
+> --out-file /tmp/spend_succeed_2.json
+```
+Just like in the first example, we can see the successful spending from the
+“always succeeds” script
+[on chain](https://preprod.cardanoscan.io/transaction/6e0bd67cd5eec2329f45cf093ab06e0868f6f467b6e6158267952bdcfae4534b?tab=utxo).
+
+With the implementation of [CIP 32](https://cips.cardano.org/cip/CIP-0032)
+in the Vasil hard fork, it became possible to use inline datums instead of
+datum hashes:
+```shell
+$ cardano-cli transaction build --testnet-magic 1 \
+> --tx-in e0353625f3290dad3143ac17942bc440b12a1bc3c025c605f80406f0ecec8efe#1 \
+> --tx-out addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq+5000000 \
+> --tx-out-inline-datum-value '"Datum"' \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+--out-file /tmp/fund_succeed_3.json
+```
+On
+[Cardanoscan](https://preprod.cardanoscan.io/transaction/64eb8c39b0808991a3a64377c7fec2e98efb25c8257e529a9a1381d8de72827b?tab=utxo)
+we cannot really see a difference to the previous example, but when
+inspecting the transaction, for example with
+[Koios](https://preprod.koios.rest/#post-/tx_info), we see the inline datum
+in the transaction output itself.
+
+To spend this transaction output, we do not have to give the datum
+explicitly anymore.
+We, however, have to tell `cardano-cli` that an inline datum is there with
+`--tx-in-inline-datum-present':
+```shell
+$ cardano-cli transaction build --testnet-magic 1 \
+> --tx-in 64eb8c39b0808991a3a64377c7fec2e98efb25c8257e529a9a1381d8de72827b#0 \
+> --tx-in-script-file always_succeeds.V1.plutus \
+> --tx-in-inline-datum-present --tx-in-redeemer-value '"Spend"' \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+> --tx-in-collateral 6fa4f7cc6674a00395e1ca68854d47f086e3a408e2b31f75fb10a712494fc462#3 \
+> --out-file /tmp/spend_succeed_3.json
+```
+And this transaction gets also executed successfully
+[on Preprod](https://preprod.cardanoscan.io/transaction/dcdaccaa80239d316b88ad835267c8c0b6dab7e75b9830832e04fabeed8bd1d3?tab=utxo).
+
+Since this gets a little boring, we will now fund the “always fails”
+script:
+```shell
+$ cardano-cli transaction build --testnet-magic 1 \
+> --tx-in 64eb8c39b0808991a3a64377c7fec2e98efb25c8257e529a9a1381d8de72827b#1 \
+> --tx-out addr_test1wpn2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qrnvrgh+2000000 \
+> --tx-out-inline-datum-value '"Datum"' \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+> --out-file /tmp/fund_fail.json
+```
+This is still
+[successful](https://preprod.cardanoscan.io/transaction/cdc935ca6b53b6edd9ca2cec91d4c529c0fdb8bb171dc8f23d60c1a32cc8bfe1?tab=utxo).
+
+When we now try to build a transaction to spend from this address,
+`cardano-cli transaction build` is already smart enough to tell us that
+this won't work:
+```shell
+$ cardano-cli transaction build --testnet-magic 1 \
+> --tx-in cdc935ca6b53b6edd9ca2cec91d4c529c0fdb8bb171dc8f23d60c1a32cc8bfe1#0 \
+> --tx-in-script-file always_fails.V1.plutus \
+> --tx-in-inline-datum-present --tx-in-redeemer-value '"Spend"' \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+> --tx-in-collateral 6fa4f7cc6674a00395e1ca68854d47f086e3a408e2b31f75fb10a712494fc462#3 \
+> --out-file /tmp/spend_fail.json
+Command failed: transaction build  Error: The following scripts have execution failures:
+the script for transaction input 0 (in ascending order of the TxIds) failed with:
+The Plutus script evaluation failed: An error has occurred:  User error:
+The machine terminated because of an error, either from a built-in function or from an explicit use of 'error'.
+```
+
+In order to see, how a failing transaction looks like, we build the
+transaction with `cardano-cli transaction build-raw` instead.
+This needs a lot of information that `cardano-cli transaction build`
+figures out itself given explicitly.
+The expected cost of executing the script has to be given by
+`--tx-in-execution-units`, the protocol parameters have to be given by
+`--protocol-params-file`, the `--fee` and the `--tx-out` have to be
+specified explicitly instead of letting it be computed automatically and
+given to the `--change-address`, and if we do not want the collateral to be
+taken completely, we also have to give a `--tx-out-return-collateral`:
+```shell
+$ cardano-cli transaction build-raw \
+> --protocol-params-file /tmp/parameters.json \
+> --tx-in cdc935ca6b53b6edd9ca2cec91d4c529c0fdb8bb171dc8f23d60c1a32cc8bfe1#0 \
+> --tx-in-script-file always_fails.V1.plutus \
+> --tx-in-inline-datum-present --tx-in-redeemer-value '"Spend"' \
+> --tx-in-execution-units '(586656,2301)' --fee 173685 \
+> --tx-out addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt+1826315 \
+> --tx-in-collateral 6fa4f7cc6674a00395e1ca68854d47f086e3a408e2b31f75fb10a712494fc462#3 \
+> --tx-out-return-collateral addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt+4739472 \
+> --out-file /tmp/spend_fail.json
+```
+
+However, trying to submit this transaction through Eternl, we get:
+![Eternl failing](Eternl-Fail.jpg)
 
 ## Deploying on Reference UTxOs
 TODO:
