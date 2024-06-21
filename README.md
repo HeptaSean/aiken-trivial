@@ -39,7 +39,7 @@ test fails() fail {
 ## Testing and Building
 To run the tests (and generally check everything else is okay), we can use
 `aiken check`:
-```shell
+```shellsession
 $ aiken check
     Compiling hepta/trivial 1.0.0 (/home/sean/Cardano/Repos/aiken-trivial)
       Testing ...
@@ -53,7 +53,7 @@ $ aiken check
 ```
 
 And then `aiken build` can be used to actually build the validators:
-```shell
+```shellsession
 $ aiken build
     Compiling hepta/trivial 1.0.0 (/home/sean/Cardano/Repos/aiken-trivial)
    Generating project's blueprint (/home/sean/Cardano/Repos/aiken-trivial/plutus.json)
@@ -66,7 +66,7 @@ validators.
 
 ## Addresses and Plutus Files
 We can use `aiken address` to get the addresses for these validators:
-```shell
+```shellsession
 $ aiken address --validator trivial.always_succeeds
 addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq
       Summary 0 errors, 0 warnings
@@ -90,7 +90,7 @@ before on all of the networks:
 
 In order to use these validators with `cardano-cli`, we need them in the
 file format used by that. We can get it through `aiken blueprint convert`:
-```shell
+```shellsession
 $ aiken blueprint convert --validator trivial.always_succeeds
 {
   "type": "PlutusScriptV2",
@@ -126,7 +126,7 @@ example.
 The addresses for these can be found with `cardano-cli` (we could have also
 used it for our examples with the same results that `aiken address` gave
 us):
-```shell
+```shellsession
 $ cardano-cli address build --payment-script-file always-fails.V1.plutus --mainnet; echo
 addr1w8qvvu0m5jpkgxn3hwfd829hc5kfp0cuq83tsvgk44752dsea0svn
 $ cardano-cli address build --payment-script-file always-fails.V2.plutus --mainnet; echo
@@ -139,7 +139,7 @@ Both have been used on mainnet quite a lot:
 
 Another possibility to achieve this, is to use a simple native script with
 an empty `any` requirement:
-```shell
+```shellsession
 $ cat false.json
 {
     "type": "any",
@@ -195,9 +195,9 @@ addresses.
 As good citizens of Cardano (and to not spend ADA that are actually worth
 anything), we use the Preprod testnet for this.
 
-We first put 5 ADA on the “always succeeds” address with a datum `"Datum"`
+We first put 5 ADA on the `always_succeeds` address with a datum `"Datum"`
 put in the transaction output as a hash:
-```shell
+```shellsession
 $ cardano-cli transaction build --testnet-magic 1 \
 > --tx-in 7cba3a25ba58bd7352a1554196d73c2beb1d6cd213fad587e79f5d5312d9b8c9#0 \
 > --tx-out addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq+5000000 \
@@ -208,11 +208,18 @@ $ cardano-cli transaction build --testnet-magic 1 \
 After signing and submitting this transaction we can see it
 [on Cardanoscan](https://preprod.cardanoscan.io/transaction/d94ec1de08a5bf070473ada78833cea39a6ece98d0a48e6fb208c08268fd2bd7?tab=utxo).
 
+(I'm not showing signing and submitting the transactions here and in the
+remainder of the article.
+What to do exactly varies depending on if you are using `cardano-cli`'s
+`.skey` files, a hardware wallet and `cardano-hw-cli`, or – as I have done
+for this – a wallet that is set up in Eternl and then import the
+transaction and sign and submit it from there.)
+
 To spend this UTxO again, we need to provide `cardano-cli` with the script,
 the datum, and a redeemer.
 Moreover, a collateral input has to be given which will be used to pay the
 network in case the execution fails:
-```shell
+```shellsession
 $ cardano-cli transaction build --testnet-magic 1 \
 > --tx-in d94ec1de08a5bf070473ada78833cea39a6ece98d0a48e6fb208c08268fd2bd7#0 \
 > --tx-in-script-file always_succeeds.V1.plutus \
@@ -226,7 +233,7 @@ Also, this spending transaction can be seen
 
 We can also tell `cardano-cli` to embed the datum in the transaction's
 witness set instead:
-```shell
+```shellsession
 $ cardano-cli transaction build --testnet-magic 1 \
 > --tx-in d94ec1de08a5bf070473ada78833cea39a6ece98d0a48e6fb208c08268fd2bd7#1 \
 > --tx-out addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq+5000000 \
@@ -244,7 +251,7 @@ For the spending transaction, we still have to give the datum explicitly.
 A spending application has to inspect the blockchain in search for the
 embedded datum information itself and then provide it, just like in the
 first example:
-```shell
+```shellsession
 $ cardano-cli transaction build --testnet-magic 1 \
 > --tx-in e0353625f3290dad3143ac17942bc440b12a1bc3c025c605f80406f0ecec8efe#0 \
 > --tx-in-script-file always_succeeds.V1.plutus \
@@ -254,13 +261,13 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --out-file /tmp/spend_succeed_2.json
 ```
 Just like in the first example, we can see the successful spending from the
-“always succeeds” script
+`always_succeeds` script
 [on chain](https://preprod.cardanoscan.io/transaction/6e0bd67cd5eec2329f45cf093ab06e0868f6f467b6e6158267952bdcfae4534b?tab=utxo).
 
 With the implementation of [CIP 32](https://cips.cardano.org/cip/CIP-0032)
 in the Vasil hard fork, it became possible to use inline datums instead of
 datum hashes:
-```shell
+```shellsession
 $ cardano-cli transaction build --testnet-magic 1 \
 > --tx-in e0353625f3290dad3143ac17942bc440b12a1bc3c025c605f80406f0ecec8efe#1 \
 > --tx-out addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq+5000000 \
@@ -279,7 +286,7 @@ To spend this transaction output, we do not have to give the datum
 explicitly anymore.
 We, however, have to tell `cardano-cli` that an inline datum is there with
 `--tx-in-inline-datum-present':
-```shell
+```shellsession
 $ cardano-cli transaction build --testnet-magic 1 \
 > --tx-in 64eb8c39b0808991a3a64377c7fec2e98efb25c8257e529a9a1381d8de72827b#0 \
 > --tx-in-script-file always_succeeds.V1.plutus \
@@ -291,9 +298,9 @@ $ cardano-cli transaction build --testnet-magic 1 \
 And this transaction gets also executed successfully
 [on Preprod](https://preprod.cardanoscan.io/transaction/dcdaccaa80239d316b88ad835267c8c0b6dab7e75b9830832e04fabeed8bd1d3?tab=utxo).
 
-Since this gets a little boring, we will now fund the “always fails”
+Since this gets a little boring, we will now fund the `always_fails`
 script:
-```shell
+```shellsession
 $ cardano-cli transaction build --testnet-magic 1 \
 > --tx-in 64eb8c39b0808991a3a64377c7fec2e98efb25c8257e529a9a1381d8de72827b#1 \
 > --tx-out addr_test1wpn2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qrnvrgh+2000000 \
@@ -304,66 +311,150 @@ $ cardano-cli transaction build --testnet-magic 1 \
 This is still
 [successful](https://preprod.cardanoscan.io/transaction/cdc935ca6b53b6edd9ca2cec91d4c529c0fdb8bb171dc8f23d60c1a32cc8bfe1?tab=utxo).
 
-When we now try to build a transaction to spend from this address,
-`cardano-cli transaction build` is already smart enough to tell us that
-this won't work:
-```shell
-$ cardano-cli transaction build --testnet-magic 1 \
+For building the transaction trying to spend from that address, we have to
+include `--script-invalid` into the arguments, because `cardano-cli` is
+smart enough to notice that the script will fail and does not allow to
+build the transaction otherwise:
+```shellsession
+$ cardano-cli transaction build --testnet-magic 1 --script-invalid \
 > --tx-in cdc935ca6b53b6edd9ca2cec91d4c529c0fdb8bb171dc8f23d60c1a32cc8bfe1#0 \
 > --tx-in-script-file always_fails.V1.plutus \
 > --tx-in-inline-datum-present --tx-in-redeemer-value '"Spend"' \
 > --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
-> --tx-in-collateral 6fa4f7cc6674a00395e1ca68854d47f086e3a408e2b31f75fb10a712494fc462#3 \
-> --out-file /tmp/spend_fail.json
-Command failed: transaction build  Error: The following scripts have execution failures:
-the script for transaction input 0 (in ascending order of the TxIds) failed with:
-The Plutus script evaluation failed: An error has occurred:  User error:
-The machine terminated because of an error, either from a built-in function or from an explicit use of 'error'.
-```
-
-In order to see, how a failing transaction looks like, we build the
-transaction with `cardano-cli transaction build-raw` instead.
-This needs a lot of information that `cardano-cli transaction build`
-figures out itself given explicitly.
-The expected cost of executing the script has to be given by
-`--tx-in-execution-units`, the protocol parameters have to be given by
-`--protocol-params-file`, the `--fee` and the `--tx-out` have to be
-specified explicitly instead of letting it be computed automatically and
-given to the `--change-address`, and if we do not want the collateral to be
-taken completely, we also have to give a `--tx-out-return-collateral`:
-```shell
-$ cardano-cli transaction build-raw \
-> --protocol-params-file /tmp/parameters.json \
-> --tx-in cdc935ca6b53b6edd9ca2cec91d4c529c0fdb8bb171dc8f23d60c1a32cc8bfe1#0 \
-> --tx-in-script-file always_fails.V1.plutus \
-> --tx-in-inline-datum-present --tx-in-redeemer-value '"Spend"' \
-> --tx-in-execution-units '(586656,2301)' --fee 173685 \
-> --tx-out addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt+1826315 \
-> --tx-in-collateral 6fa4f7cc6674a00395e1ca68854d47f086e3a408e2b31f75fb10a712494fc462#3 \
-> --tx-out-return-collateral addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt+4739472 \
+> --tx-in-collateral dcdaccaa80239d316b88ad835267c8c0b6dab7e75b9830832e04fabeed8bd1d3#0 \
 > --out-file /tmp/spend_fail.json
 ```
+This is the rare
+[example](https://preprod.cardanoscan.io/transaction/724442cb356c0c03678c7bdc3478e1f7c07cf72191f66c0c45c68c89bcbafbf3?tab=utxo)
+of a transaction actually taking the collateral (and putting back a
+collateral output), because the script failed.
+As we have seen, we explicitly had to tell `cardano-cli` that we *really*
+wanted to do that.
+You usually won't see such transactions in the real world.
 
-However, trying to submit this transaction through Eternl, we get:
-![Eternl failing](Eternl-Fail.jpg)
+The functionality has to be there nevertheless, because it cannot be
+guaranteed that all clients and submission nodes reject such failing
+transactions reliably.
+An attacker could otherwise try to flood the network with such transactions
+(probably crafted to use a lot more processing before failing) to bring it
+down.
+If such an attack was happening, the affected nodes can always decide to
+*not* reject the transactions without taking the collateral, but let them
+through (as we have forced with `--script-invalid`) and make the attacker
+pay for the work they cause.
 
 ## Deploying on Reference UTxOs
-TODO:
-* Why?
-* On Preprod:
-* Put always_succeeds on a UTxO without datum (so, it stays there)
-* Deposit and get back
-* Put always_fails on a UTxO with datum (to use it for everything, cannot
-  be spent anyway)
-* Try to spend it
-* On Mainnet:
-* Put always_succeeds and always_fails on UTxOs for others to use
+In order to not have to provide scripts with every transaction using them
+over and over again, [CIP 33](https://cips.cardano.org/cip/CIP-0033)
+introduced the concept of reference scripts.
+Scripts can be put on a UTxO and then referenced in transactions using them
+without having to have the script itself available when building the
+transaction.
+
+So, we deploy our `always_succeeds` script on a UTxO on its own address.
+Since we do not include a datum, this UTxO can never be spent and is
+guaranteed to stay in place to be used as reference script in the future:
+```shellsession
+$ cardano-cli transaction build --testnet-magic 1 \
+> --tx-in cdc935ca6b53b6edd9ca2cec91d4c529c0fdb8bb171dc8f23d60c1a32cc8bfe1#1 \
+> --tx-out addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq+1000000 \
+> --tx-out-reference-script-file always_succeeds.V1.plutus \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+> --out-file /tmp/deploy_suceed.json
+```
+The
+[transaction on Cardanoscan](https://preprod.cardanoscan.io/transaction/be8217d6682be1d1888ca112896345612f0d6dec4552970188a9d1cbcf47e17b?tab=utxo)
+is again successful.
+We see the reference script on the UTxO that was sent to the script
+address.
+
+Funding the address is done in exactly the same way as before:
+```shellsession
+$ cardano-cli transaction build --testnet-magic 1 \
+> --tx-in be8217d6682be1d1888ca112896345612f0d6dec4552970188a9d1cbcf47e17b#1 \
+> --tx-out addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq+5000000 \
+> --tx-out-inline-datum-value '"Datum"' \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+> --out-file /tmp/fund_succeed_reference.json
+```
+As always we look up our success
+[on an explorer](https://preprod.cardanoscan.io/transaction/7864ba48388446ebfabff08f49554c4fe4dd1a8aecd273f7353d5c28dc503d05?tab=utxo).
+
+In the spending transaction, we now give the reference UTxO instead of the
+file with the script.
+Additionally, we have to give the Plutus version (V2 in our case) and have
+to rename the arguments for datum and redeemer:
+```shellsession
+$ cardano-cli transaction build --testnet-magic 1 \
+> --tx-in 7864ba48388446ebfabff08f49554c4fe4dd1a8aecd273f7353d5c28dc503d05#0 \
+> --spending-tx-in-reference be8217d6682be1d1888ca112896345612f0d6dec4552970188a9d1cbcf47e17b#0 \
+> --spending-plutus-script-v2 \
+> --spending-reference-tx-in-inline-datum-present \
+> --spending-reference-tx-in-redeemer-value '"Spend"' \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+> --tx-in-collateral 6fa4f7cc6674a00395e1ca68854d47f086e3a408e2b31f75fb10a712494fc462#3 \
+> --out-file /tmp/spend_succeed_reference.json
+```
+The
+[result on Cardanoscan](https://preprod.cardanoscan.io/transaction/bffc1c48cb0dc2ac07f346b400b2dcaf0c740f89665ca0bdbb96165b9188fffb?tab=utxo)
+shows that also with using a reference script, we can successfully spend
+from the `always_succeeds` address.
+
+[TODO]: # (Can we see usage of the reference script on Cardanoscan?)
+
+While deploying a usual script in a UTxO without datum on its own address
+seems like a good way to ensure that it stays available, we choose to add a
+datum that explains what this is for the `always_fails` script, since the
+UTxOs on that address cannot be spent, anyway:
+```shellsession
+$ cardano-cli transaction build --testnet-magic 1 \
+> --tx-in 7864ba48388446ebfabff08f49554c4fe4dd1a8aecd273f7353d5c28dc503d05#1 \
+> --tx-out addr_test1wpn2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qrnvrgh+2000000 \
+> --tx-out-reference-script-file always_fails.V1.plutus \
+> --tx-out-inline-datum-value '"Reference script UTxO of always fails"' \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+> --out-file /tmp/deploy_fail.json
+```
+[On Cardanoscan](https://preprod.cardanoscan.io/transaction/eadc2c788f683745a623f8e4cca74858689c2221fb2ae998c63fc095a56aa604?tab=utxo),
+we can also look at this deployment.
+
+We try to spend this UTxO itself using the reference script on it … and let
+the chain take our collateral, because this, of course, fails:
+```shellsession
+$ cardano-cli transaction build --testnet-magic 1 --script-invalid \
+> --tx-in eadc2c788f683745a623f8e4cca74858689c2221fb2ae998c63fc095a56aa604#0 \
+> --spending-tx-in-reference eadc2c788f683745a623f8e4cca74858689c2221fb2ae998c63fc095a56aa604#0 \
+> --spending-plutus-script-v2 \
+> --spending-reference-tx-in-inline-datum-present \
+> --spending-reference-tx-in-redeemer-value '"Spend"' \
+> --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
+> --tx-in-collateral bffc1c48cb0dc2ac07f346b400b2dcaf0c740f89665ca0bdbb96165b9188fffb#0 \
+> --out-file /tmp/spend_fail_reference.json
+```
+And also this deployment can be viewed
+[on Cardanoscan]((https://preprod.cardanoscan.io/transaction/496d386a9ea5cebcb7be66ee16cf16e86e968fda921fa33cfcd1e6645f2a7758?tab=utxo).
+
+To conclude this section, we also deploy the `always_fails` script on its
+mainnet address:
+```shellsession
+$ cardano-cli-mainnet transaction build --mainnet \
+> --tx-in 4d99cccaf44ed66947e89696ccc4d15e8c42a1777903b11bad72f32345a4c5d5#2 \
+> --tx-out addr1w9n2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qcmcl8j+2000000 \
+> --tx-out-reference-script-file always_fails.V1.plutus \
+> --tx-out-inline-datum-value '"Reference script UTxO of always fails"' \
+> --change-address addr1qyn04nuejghr54x5srvmhpczqcvysy4s3m36ye2mhqngx57w5qtnashrgkt3400nmch2kffh6l52r62hlunj82y2xnuq3xtl2y \
+> --out-file /tmp/deploy_fail_mainnet.json
+```
+So, if you ever need an `always_fails` reference script on the Cardano
+mainnet, you find it here:
+[https://cardanoscan.io/transaction/5a3dc67f89c979a9940fa6d3d10c402a455f00c5edeaddc386e267c28b5ab3b5?tab=utxo](https://cardanoscan.io/transaction/5a3dc67f89c979a9940fa6d3d10c402a455f00c5edeaddc386e267c28b5ab3b5?tab=utxo)
 
 ## Using a “Burnt” UTxO for Login
 TODO:
 * Why?
 * Build transaction with `cardano-cli`
 * Show Eternl showing this transaction after signing it
+![Eternl Login with Fake Transaction](Eternl-Login.jpg)
 
 ## The End
 Although, the two validators in this article are the most trivial ones you
