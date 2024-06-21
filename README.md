@@ -526,7 +526,7 @@ If we now import this transaction to Eternl, it allows us to sign it.
 And it makes as clear as possible to the user that there cannot be any
 effect on their wallet, that none of their addresses is touched by this
 transaction and only the message is important:
-![Eternl Login with Fake Transaction](Eternl-Login.jpg)
+![Eternl Login with Fake Transaction](Eternl-Login.png)
 
 ## The End
 Although, the two validators in this article are the most trivial ones you
