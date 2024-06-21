@@ -81,12 +81,12 @@ addr1w9n2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qcmcl8j
       Summary 0 errors, 0 warnings
 ```
 
-As it turns out when checking on Cardanoscan, both of them have been used
+As it turns out when checking on an explorer, both of them have been used
 before on all of the networks:
 | Validator         | Mainnet | Preprod | Preview |
 | ----------------- | ------- | ------- | ------- |
-| `always_succeeds` | [addr1wyu…wg9ye9](https://cardanoscan.io/address/7139c520d0627aafa728f7e4dd10142b77c257813c36f57e2cb88f72a5) | [addr_test1wqu…4q3ckq](https://preprod.cardanoscan.io/address/7039c520d0627aafa728f7e4dd10142b77c257813c36f57e2cb88f72a5) | [addr_test1wqu…4q3ckq](https://preview.cardanoscan.io/address/7039c520d0627aafa728f7e4dd10142b77c257813c36f57e2cb88f72a5) |
-| `always_fails`    | [addr1w9n…cmcl8j](https://cardanoscan.io/address/7166a67769edd0c54d5f6ec8ba3925394bf0e4fc1f8bfbe3a131eb523c) | [addr_test1wpn…rnvrgh](https://preprod.cardanoscan.io/address/7066a67769edd0c54d5f6ec8ba3925394bf0e4fc1f8bfbe3a131eb523c) | [addr_test1wpn…rnvrgh](https://preview.cardanoscan.io/address/7066a67769edd0c54d5f6ec8ba3925394bf0e4fc1f8bfbe3a131eb523c) |
+| `always_succeeds` | [addr1wyu…wg9ye9](https://beta.explorer.cardano.org/en/address/addr1wyuu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fgwg9ye9) | [addr_test1wqu…4q3ckq](https://preprod.beta.explorer.cardano.org/en/address/addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq) | [addr_test1wqu…4q3ckq](https://preview.beta.explorer.cardano.org/en/address/addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq) |
+| `always_fails`    | [addr1w9n…cmcl8j](https://beta.explorer.cardano.org/en/address/addr1w9n2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qcmcl8j) | [addr_test1wpn…rnvrgh](https://preprod.beta.explorer.cardano.org/en/address/addr_test1wpn2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qrnvrgh) | [addr_test1wpn…rnvrgh](https://preview.beta.explorer.cardano.org/en/address/addr_test1wpn2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qrnvrgh) |
 
 In order to use these validators with `cardano-cli`, we need them in the
 file format used by that. We can get it through `aiken blueprint convert`:
@@ -134,8 +134,8 @@ addr1w9gexmeunzsykesf42d4eqet5yvzeap6trjnflxqtkcf66g5740fw
 ```
 
 Both have been used on mainnet quite a lot:
-[addr1w8q…ea0svn](https://cardanoscan.io/address/71c0c671fba483641a71bb92d3a8b7c52c90bf1c01e2b83116ad7d4536),
-[addr1w9g…5740fw](https://cardanoscan.io/address/7151936f3c98a04b6609aa9b5c832ba1182cf43a58e534fcc05db09d69)
+[addr1w8q…ea0svn](https://beta.explorer.cardano.org/en/address/addr1w8qvvu0m5jpkgxn3hwfd829hc5kfp0cuq83tsvgk44752dsea0svn),
+[addr1w9g…5740fw](https://beta.explorer.cardano.org/en/address/addr1w9gexmeunzsykesf42d4eqet5yvzeap6trjnflxqtkcf66g5740fw)
 
 Another possibility to achieve this, is to use a simple native script with
 an empty `any` requirement:
@@ -150,21 +150,24 @@ addr1w9fdc02rkmfyvh5kzzwwwk4kr2l9a8qa3g7feehl3ga022qz2249g
 ```
 
 This has not been used much:
-[addr1w9f…z2249g](https://cardanoscan.io/address/7152dc3d43b6d2465e96109ce75ab61abe5e9c1d8a3c9ce6ff8a3af528?tab=script)
+[addr1w9f…z2249g](https://beta.explorer.cardano.org/en/address/addr1w9fdc02rkmfyvh5kzzwwwk4kr2l9a8qa3g7feehl3ga022qz2249g)
 The only ADA on there is one that I put there to test.
 But the nice thing about this is that Cardanoscan allows to “verify” native
 scripts so that users can see there that this is, in fact, a “burn” address
-and assets here are surely locked forever.
+and assets here are surely locked forever:
+[addr1w9f…z2249g on Cardanoscan](https://cardanoscan.io/address/7152dc3d43b6d2465e96109ce75ab61abe5e9c1d8a3c9ce6ff8a3af528?tab=script)
 
 Not using a Plutus or native script at all, another possibility for a
 “burn” address is using the address for an all-zero payment key hash.
 Since it is incredibly unlikely that anyone ever finds a public key whose
 hash is all zeroes, this is also a “burn” address for all intents and
 purposes:
-[addr1vyq…kdl5mw](https://cardanoscan.io/address/6100000000000000000000000000000000000000000000000000000000)
+[addr1vyq…kdl5mw](https://beta.explorer.cardano.org/en/address/addr1vyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkdl5mw)
 There is also a variant (which hasn't been used), where the stake part of
 the address is also all zeroes:
 [addr1qyq…v2t5am](https://cardanoscan.io/address/010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)
+(on Cardanoscan, because the cardano.org explorer does not support unused
+addresses at the moment)
 
 In fact, all of the above addresses could be combined with arbitrary stake
 parts of existing or non-existing stake keys.
@@ -206,7 +209,10 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --out-file /tmp/fund_succeed_1.json
 ```
 After signing and submitting this transaction we can see it
-[on Cardanoscan](https://preprod.cardanoscan.io/transaction/d94ec1de08a5bf070473ada78833cea39a6ece98d0a48e6fb208c08268fd2bd7?tab=utxo).
+[on chain](https://preprod.beta.explorer.cardano.org/en/transaction/d94ec1de08a5bf070473ada78833cea39a6ece98d0a48e6fb208c08268fd2bd7).
+[On Cardanoscan](https://preprod.cardanoscan.io/transaction/d94ec1de08a5bf070473ada78833cea39a6ece98d0a48e6fb208c08268fd2bd7?tab=utxo),
+it even tells us that the first output is to a script and that it contains
+a datum hash (if you click on the icon after the address.
 
 (I'm not showing signing and submitting the transactions here and in the
 remainder of the article.
@@ -229,7 +235,7 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --out-file /tmp/spend_succeed_1.json
 ```
 Also, this spending transaction can be seen
-[on chain](https://preprod.cardanoscan.io/transaction/74cec7379d2950b30252b7c683742b74cd42df704244ea8f75d5af7fb4c0ad41?tab=utxo).
+[on chain](https://preprod.beta.explorer.cardano.org/en/transaction/74cec7379d2950b30252b7c683742b74cd42df704244ea8f75d5af7fb4c0ad41).
 
 We can also tell `cardano-cli` to embed the datum in the transaction's
 witness set instead:
@@ -241,10 +247,12 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
 > --out-file /tmp/fund_succeed_2.json
 ```
+[On chain](https://preprod.beta.explorer.cardano.org/en/transaction/e0353625f3290dad3143ac17942bc440b12a1bc3c025c605f80406f0ecec8efe)
+the transaction looks very similar to the first one.
 The difference is that the datum is now embedded and, e.g.,
-[Cardanoscan](https://preprod.cardanoscan.io/transaction/e0353625f3290dad3143ac17942bc440b12a1bc3c025c605f80406f0ecec8efe?tab=utxo)
-can tell us what the datum actually is right away, while that information
-was empty in the first example.
+[on Cardanoscan](https://preprod.cardanoscan.io/transaction/e0353625f3290dad3143ac17942bc440b12a1bc3c025c605f80406f0ecec8efe?tab=utxo)
+we can see what the datum actually is right away (when clicking on the
+datum button), while that information was empty in the first example.
 
 For the spending transaction, we still have to give the datum explicitly.
 A spending application has to inspect the blockchain in search for the
@@ -261,7 +269,7 @@ $ cardano-cli transaction build --testnet-magic 1 \
 ```
 Just like in the first example, we can see the successful spending from the
 `always_succeeds` script
-[on chain](https://preprod.cardanoscan.io/transaction/6e0bd67cd5eec2329f45cf093ab06e0868f6f467b6e6158267952bdcfae4534b?tab=utxo).
+[on chain](https://preprod.beta.explorer.cardano.org/en/transaction/6e0bd67cd5eec2329f45cf093ab06e0868f6f467b6e6158267952bdcfae4534b).
 
 With the implementation of [CIP 32](https://cips.cardano.org/cip/CIP-0032)
 in the Vasil hard fork, it became possible to use inline datums instead of
@@ -274,10 +282,11 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
 --out-file /tmp/fund_succeed_3.json
 ```
-On
-[Cardanoscan](https://preprod.cardanoscan.io/transaction/64eb8c39b0808991a3a64377c7fec2e98efb25c8257e529a9a1381d8de72827b?tab=utxo)
-we cannot really see a difference to the previous example, but when
-inspecting the transaction, for example with
+The difference to the previous example is neither visible
+[on the cardano.org explorer](https://preprod.beta.explorer.cardano.org/en/transaction/64eb8c39b0808991a3a64377c7fec2e98efb25c8257e529a9a1381d8de72827b)
+nor
+[on Cardanoscan](https://preprod.cardanoscan.io/transaction/64eb8c39b0808991a3a64377c7fec2e98efb25c8257e529a9a1381d8de72827b?tab=utxo),
+but when inspecting the transaction, for example with
 [Koios](https://preprod.koios.rest/#post-/tx_info), we see the inline datum
 in the transaction output itself.
 
@@ -295,7 +304,7 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --out-file /tmp/spend_succeed_3.json
 ```
 And this transaction gets also executed successfully
-[on Preprod](https://preprod.cardanoscan.io/transaction/dcdaccaa80239d316b88ad835267c8c0b6dab7e75b9830832e04fabeed8bd1d3?tab=utxo).
+[on chain](https://preprod.beta.explorer.cardano.org/en/transaction/dcdaccaa80239d316b88ad835267c8c0b6dab7e75b9830832e04fabeed8bd1d3).
 
 Since this gets a little boring, we will now fund the `always_fails`
 script:
@@ -307,8 +316,9 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
 > --out-file /tmp/fund_fail.json
 ```
-This is still
-[successful](https://preprod.cardanoscan.io/transaction/cdc935ca6b53b6edd9ca2cec91d4c529c0fdb8bb171dc8f23d60c1a32cc8bfe1?tab=utxo).
+The funding makes it
+[on chain](https://preprod.beta.explorer.cardano.org/en/transaction/cdc935ca6b53b6edd9ca2cec91d4c529c0fdb8bb171dc8f23d60c1a32cc8bfe1)
+without problems.
 
 For building the transaction trying to spend from that address, we have to
 include `--script-invalid` into the arguments, because `cardano-cli` is
@@ -323,10 +333,10 @@ $ cardano-cli transaction build --testnet-magic 1 --script-invalid \
 > --tx-in-collateral dcdaccaa80239d316b88ad835267c8c0b6dab7e75b9830832e04fabeed8bd1d3#0 \
 > --out-file /tmp/spend_fail.json
 ```
-This is the rare
-[example](https://preprod.cardanoscan.io/transaction/724442cb356c0c03678c7bdc3478e1f7c07cf72191f66c0c45c68c89bcbafbf3?tab=utxo)
-of a transaction actually taking the collateral (and putting back a
-collateral output), because the script failed.
+This is the rare example where we can actually see a failed transaction
+[on chain](https://preprod.beta.explorer.cardano.org/en/transaction/724442cb356c0c03678c7bdc3478e1f7c07cf72191f66c0c45c68c89bcbafbf3)
+which takes the collateral (and puts back a collateral output), because the
+script failed.
 As we have seen, we explicitly had to tell `cardano-cli` that we *really*
 wanted to do that.
 You usually won't see such transactions in the real world.
@@ -361,11 +371,11 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
 > --out-file /tmp/deploy_suceed.json
 ```
-The
-[transaction on Cardanoscan](https://preprod.cardanoscan.io/transaction/be8217d6682be1d1888ca112896345612f0d6dec4552970188a9d1cbcf47e17b?tab=utxo)
-is again successful.
-We see the reference script on the UTxO that was sent to the script
-address.
+[On chain](https://preprod.beta.explorer.cardano.org/en/transaction/be8217d6682be1d1888ca112896345612f0d6dec4552970188a9d1cbcf47e17b)
+we see the successful deployment and
+[on Cardanoscan](https://preprod.cardanoscan.io/transaction/be8217d6682be1d1888ca112896345612f0d6dec4552970188a9d1cbcf47e17b?tab=utxo)
+we can even see the reference script on the UTxO that was sent to the
+script address (at the icon after the address).
 
 Funding the address is done in exactly the same way as before:
 ```shellsession
@@ -377,7 +387,7 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --out-file /tmp/fund_succeed_reference.json
 ```
 As always we look up our success
-[on an explorer](https://preprod.cardanoscan.io/transaction/7864ba48388446ebfabff08f49554c4fe4dd1a8aecd273f7353d5c28dc503d05?tab=utxo).
+[on chain](https://preprod.beta.explorer.cardano.org/en/transaction/7864ba48388446ebfabff08f49554c4fe4dd1a8aecd273f7353d5c28dc503d05).
 
 In the spending transaction, we now give the reference UTxO instead of the
 file with the script.
@@ -394,8 +404,8 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --tx-in-collateral 6fa4f7cc6674a00395e1ca68854d47f086e3a408e2b31f75fb10a712494fc462#3 \
 > --out-file /tmp/spend_succeed_reference.json
 ```
-The
-[result on Cardanoscan](https://preprod.cardanoscan.io/transaction/bffc1c48cb0dc2ac07f346b400b2dcaf0c740f89665ca0bdbb96165b9188fffb?tab=utxo)
+The result
+[on chain](https://preprod.beta.explorer.cardano.org/en/transaction/bffc1c48cb0dc2ac07f346b400b2dcaf0c740f89665ca0bdbb96165b9188fffb)
 shows that also with using a reference script, we can successfully spend
 from the `always_succeeds` address.
 
@@ -414,9 +424,11 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
 > --out-file /tmp/deploy_fail.json
 ```
-[On Cardanoscan](https://preprod.cardanoscan.io/transaction/eadc2c788f683745a623f8e4cca74858689c2221fb2ae998c63fc095a56aa604?tab=utxo),
-we can also look at this deployment and see not only the reference script,
-but also the datum explaining it.
+[On the cardano.org explorer](https://preprod.beta.explorer.cardano.org/en/transaction/eadc2c788f683745a623f8e4cca74858689c2221fb2ae998c63fc095a56aa604)
+this looks again rather unspectacular, while
+[on Cardanoscan](https://preprod.cardanoscan.io/transaction/eadc2c788f683745a623f8e4cca74858689c2221fb2ae998c63fc095a56aa604?tab=utxo),
+we can not only see the reference script, but also the datum explaining it
+(if Cardanoscan could decode hexadecimal bytes to strings).
 
 We try to spend this UTxO itself using the reference script on it … and let
 the chain take our collateral, because this, of course, fails:
@@ -431,8 +443,8 @@ $ cardano-cli transaction build --testnet-magic 1 --script-invalid \
 > --tx-in-collateral bffc1c48cb0dc2ac07f346b400b2dcaf0c740f89665ca0bdbb96165b9188fffb#0 \
 > --out-file /tmp/spend_fail_reference.json
 ```
-And also this deployment can be viewed
-[on Cardanoscan](https://preprod.cardanoscan.io/transaction/496d386a9ea5cebcb7be66ee16cf16e86e968fda921fa33cfcd1e6645f2a7758?tab=utxo).
+And also this failed transaction can be viewed
+[on chain](https://preprod.beta.explorer.cardano.org/en/transaction/496d386a9ea5cebcb7be66ee16cf16e86e968fda921fa33cfcd1e6645f2a7758).
 
 To conclude this section, we also deploy the `always_fails` script on its
 mainnet address:
