@@ -183,7 +183,7 @@ considered “burnt”.
 This mostly happens by accident and not on purpose right now, though.
 And it's not easily verifiable if such UTxOs are really locked, since
 native and Plutus scripts use the same type of addresses and native scripts
-can spend UTxOs without datum.
+*can* spend UTxOs without datum.
 Moreover, there are some discussions if there is a way to get those
 accidentally locked assets back.
 
@@ -241,8 +241,7 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
 > --out-file /tmp/fund_succeed_2.json
 ```
-The difference is that the datum is now embedded in the transactions
-witness set and, e.g.,
+The difference is that the datum is now embedded and, e.g.,
 [Cardanoscan](https://preprod.cardanoscan.io/transaction/e0353625f3290dad3143ac17942bc440b12a1bc3c025c605f80406f0ecec8efe?tab=utxo)
 can tell us what the datum actually is right away, while that information
 was empty in the first example.
@@ -416,7 +415,8 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --out-file /tmp/deploy_fail.json
 ```
 [On Cardanoscan](https://preprod.cardanoscan.io/transaction/eadc2c788f683745a623f8e4cca74858689c2221fb2ae998c63fc095a56aa604?tab=utxo),
-we can also look at this deployment.
+we can also look at this deployment and see not only the reference script,
+but also the datum explaining it.
 
 We try to spend this UTxO itself using the reference script on it … and let
 the chain take our collateral, because this, of course, fails:
@@ -432,12 +432,12 @@ $ cardano-cli transaction build --testnet-magic 1 --script-invalid \
 > --out-file /tmp/spend_fail_reference.json
 ```
 And also this deployment can be viewed
-[on Cardanoscan]((https://preprod.cardanoscan.io/transaction/496d386a9ea5cebcb7be66ee16cf16e86e968fda921fa33cfcd1e6645f2a7758?tab=utxo).
+[on Cardanoscan](https://preprod.cardanoscan.io/transaction/496d386a9ea5cebcb7be66ee16cf16e86e968fda921fa33cfcd1e6645f2a7758?tab=utxo).
 
 To conclude this section, we also deploy the `always_fails` script on its
 mainnet address:
 ```shellsession
-$ cardano-cli-mainnet transaction build --mainnet \
+$ cardano-cli transaction build --mainnet \
 > --tx-in 4d99cccaf44ed66947e89696ccc4d15e8c42a1777903b11bad72f32345a4c5d5#2 \
 > --tx-out addr1w9n2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qcmcl8j+2000000 \
 > --tx-out-reference-script-file always_fails.V1.plutus \
