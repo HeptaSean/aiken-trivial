@@ -280,7 +280,7 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --tx-out addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq+5000000 \
 > --tx-out-inline-datum-value '"Datum"' \
 > --change-address addr_test1qrfgal6mmwdllxdvft28xy6x3wjgc3v6nj450smmhtdama6wlu8vnqcstwtxa4l3yuckm8gttva66skvfzrmruead0ys3tkmlt \
---out-file /tmp/fund_succeed_3.json
+> --out-file /tmp/fund_succeed_3.json
 ```
 The difference to the previous example is neither visible
 [on the cardano.org explorer](https://preprod.beta.explorer.cardano.org/en/transaction/64eb8c39b0808991a3a64377c7fec2e98efb25c8257e529a9a1381d8de72827b)
@@ -462,10 +462,70 @@ mainnet, you find it here:
 [https://cardanoscan.io/transaction/5a3dc67f89c979a9940fa6d3d10c402a455f00c5edeaddc386e267c28b5ab3b5?tab=utxo](https://cardanoscan.io/transaction/5a3dc67f89c979a9940fa6d3d10c402a455f00c5edeaddc386e267c28b5ab3b5?tab=utxo)
 
 ## Using a “Burnt” UTxO for Login
-TODO:
-* Why?
-* Build transaction with `cardano-cli`
-* Show Eternl showing this transaction after signing it
+Since message signing with the `signData` function of
+[CIP 30](https://cips.cardano.org/cip/CIP-0030) is still not available in
+all hardware wallets, some dApps allow to use the signing of fake
+transactions for login and other authorisations.
+
+The “burnt” UTxOs on `always_fail` addresses provide a good way to build
+such transactions in a way that is as unsuspicious as possible for the
+users.
+
+The content to be signed should be in a
+[CIP 20](https://cips.cardano.org/cip/CIP-0020) transaction message,
+because these are shown to the user rather clearly by a lot of wallet apps:
+```json
+{
+    "674": {
+        "msg": [
+            "Please sign to login as <user> on 2024-06-20 20:51:42."
+        ]
+    }
+}
+```
+In order to prevent replay attacks, the message has to contain some data
+that always change and are only accepted for a limited time.
+
+We now build the transaction with `cardano-cli transaction build-raw` to
+have a more fine-grained control about what is built into the transaction:
+```shellsession
+$ cardano-cli transaction build-raw \
+> --protocol-params-file /tmp/parameters.json \
+> --tx-in 5a3dc67f89c979a9940fa6d3d10c402a455f00c5edeaddc386e267c28b5ab3b5#0 \
+> --spending-tx-in-reference 5a3dc67f89c979a9940fa6d3d10c402a455f00c5edeaddc386e267c28b5ab3b5#0 \
+> --spending-plutus-script-v2 \
+> --spending-reference-tx-in-inline-datum-present \
+> --spending-reference-tx-in-redeemer-value '"Login"' \
+> --spending-reference-tx-in-execution-units '(0,0)' --fee 0 \
+> --tx-out addr1w9n2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qcmcl8j+2000000 \
+> --tx-in-collateral 5a3dc67f89c979a9940fa6d3d10c402a455f00c5edeaddc386e267c28b5ab3b5#0 \
+> --tx-out-return-collateral addr1w9n2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qcmcl8j+2000000 \
+> --metadata-json-file /tmp/metadata.json \
+> --required-signer-hash cea0173ec2e345971abdf3de2eab2537d7e8a1e957ff2723a88a34f8 \
+> --out-file /tmp/login.json
+```
+With `build-raw` a lot of the values that `build` determines itself
+automatically have to and can be given explicitly.
+Here, we choose to set them to the most simple values, since the
+transaction is not supposed to be submitted.
+It just has to be “valid enough” that the wallet apps allow to sign it and
+give it back to a dApp.
+
+If we wanted to build an actually valid and successful transaction with
+`build-raw`, we would have to determine the necessary execution units for
+our script, the resulting fee for the transaction and the necessary
+collateral that would have to be subtracted from
+`--tx-out-return-collateral`.
+
+Only `--metadata-json-file` – containing the actual data we want signed –
+and `--required-signer-hash` – the public key hash that we want to sign –
+have to be adapted.
+Everything else in this command can always stay the same.
+
+If we now import this transaction to Eternl, it allows us to sign it.
+And it makes as clear as possible to the user that there cannot be any
+effect on their wallet, that none of their addresses is touched by this
+transaction and only the message is important:
 ![Eternl Login with Fake Transaction](Eternl-Login.jpg)
 
 ## The End
