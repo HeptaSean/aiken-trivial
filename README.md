@@ -212,7 +212,7 @@ After signing and submitting this transaction we can see it
 [on chain](https://preprod.beta.explorer.cardano.org/en/transaction/d94ec1de08a5bf070473ada78833cea39a6ece98d0a48e6fb208c08268fd2bd7).
 [On Cardanoscan](https://preprod.cardanoscan.io/transaction/d94ec1de08a5bf070473ada78833cea39a6ece98d0a48e6fb208c08268fd2bd7?tab=utxo),
 it even tells us that the first output is to a script and that it contains
-a datum hash (if you click on the icon after the address.
+a datum hash (if you click on the icon after the address).
 
 (I'm not showing signing and submitting the transactions here and in the
 remainder of the article.
@@ -237,8 +237,9 @@ $ cardano-cli transaction build --testnet-magic 1 \
 Also, this spending transaction can be seen
 [on chain](https://preprod.beta.explorer.cardano.org/en/transaction/74cec7379d2950b30252b7c683742b74cd42df704244ea8f75d5af7fb4c0ad41).
 
-We can also tell `cardano-cli` to embed the datum in the transaction's
-witness set instead:
+In order to not have to transmit the datum to the person or entity who
+wants to spend the UTxO in some off-chain side channel, we can also tell
+`cardano-cli` to embed the datum in the transaction's witness set:
 ```shellsession
 $ cardano-cli transaction build --testnet-magic 1 \
 > --tx-in d94ec1de08a5bf070473ada78833cea39a6ece98d0a48e6fb208c08268fd2bd7#1 \
@@ -267,8 +268,8 @@ $ cardano-cli transaction build --testnet-magic 1 \
 > --tx-in-collateral 6fa4f7cc6674a00395e1ca68854d47f086e3a408e2b31f75fb10a712494fc462#3 \
 > --out-file /tmp/spend_succeed_2.json
 ```
-Just like in the first example, we can see the successful spending from the
-`always_succeeds` script
+And also just like in the first example, we can see the successful spending
+from the `always_succeeds` script
 [on chain](https://preprod.beta.explorer.cardano.org/en/transaction/6e0bd67cd5eec2329f45cf093ab06e0868f6f467b6e6158267952bdcfae4534b).
 
 With the implementation of [CIP 32](https://cips.cardano.org/cip/CIP-0032)
@@ -293,7 +294,7 @@ in the transaction output itself.
 To spend this transaction output, we do not have to give the datum
 explicitly anymore.
 We, however, have to tell `cardano-cli` that an inline datum is there with
-`--tx-in-inline-datum-present':
+`--tx-in-inline-datum-present`:
 ```shellsession
 $ cardano-cli transaction build --testnet-magic 1 \
 > --tx-in 64eb8c39b0808991a3a64377c7fec2e98efb25c8257e529a9a1381d8de72827b#0 \
@@ -408,8 +409,8 @@ The result
 [on chain](https://preprod.beta.explorer.cardano.org/en/transaction/bffc1c48cb0dc2ac07f346b400b2dcaf0c740f89665ca0bdbb96165b9188fffb)
 shows that also with using a reference script, we can successfully spend
 from the `always_succeeds` address.
-
-[TODO]: # (Can we see usage of the reference script on Cardanoscan?)
+[On Cardanoscan](https://preprod.cardanoscan.io/transaction/bffc1c48cb0dc2ac07f346b400b2dcaf0c740f89665ca0bdbb96165b9188fffb?tab=referenceinputs)
+we can see the reference input holding the script.
 
 While deploying a usual script in a UTxO without datum on its own address
 seems like a good way to ensure that it stays available, we choose to add a
@@ -431,7 +432,7 @@ we can not only see the reference script, but also the datum explaining it
 (if Cardanoscan could decode hexadecimal bytes to strings).
 
 We try to spend this UTxO itself using the reference script on it … and let
-the chain take our collateral, because this, of course, fails:
+the chain take our collateral again, because this, of course, fails:
 ```shellsession
 $ cardano-cli transaction build --testnet-magic 1 --script-invalid \
 > --tx-in eadc2c788f683745a623f8e4cca74858689c2221fb2ae998c63fc095a56aa604#0 \
@@ -484,7 +485,10 @@ because these are shown to the user rather clearly by a lot of wallet apps:
 }
 ```
 In order to prevent replay attacks, the message has to contain some data
-that always change and are only accepted for a limited time.
+that always changes and is only accepted for a limited time.
+Otherwise the signature would always be completely identical and an
+attacker would only have to intercept it once to use it to login as the
+user in the future.
 
 We now build the transaction with `cardano-cli transaction build-raw` to
 have a more fine-grained control about what is built into the transaction:
@@ -518,8 +522,8 @@ collateral that would have to be subtracted from
 `--tx-out-return-collateral`.
 
 Only `--metadata-json-file` – containing the actual data we want signed –
-and `--required-signer-hash` – the public key hash that we want to sign –
-have to be adapted.
+and `--required-signer-hash` – the public key hash that we want to do the
+signature – have to be adapted.
 Everything else in this command can always stay the same.
 
 If we now import this transaction to Eternl, it allows us to sign it.
