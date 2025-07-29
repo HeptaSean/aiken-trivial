@@ -1,19 +1,19 @@
-validator {
-  fn always_succeeds(_datum: Data, _redeemer: Data, _context: Data) -> Bool {
+validator always_succeed {
+  else(_) {
     True
   }
 }
 
 test succeeds() {
-  always_succeeds(Void, Void, Void)
+  always_succeed.else(None)
 }
 
-validator {
-  fn always_fails(_datum: Data, _redeemer: Data, _context: Data) -> Bool {
+validator always_fail {
+  else(_) {
     False
   }
 }
 
 test fails() fail {
-  always_fails(Void, Void, Void)
+  always_fail.else(None)
 }

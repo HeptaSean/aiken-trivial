@@ -15,24 +15,24 @@ implemented these validators in `validators/trivial.ak`.
 The source code are just 19 lines – including equally trivial test cases for
 both of them:
 ```gleam
-validator {
-  fn always_succeeds(_datum: Data, _redeemer: Data, _context: Data) -> Bool {
+validator always_succeed {
+  else(_) {
     True
   }
 }
 
 test succeeds() {
-  always_succeeds(Void, Void, Void)
+  always_succeed.else(None)
 }
 
-validator {
-  fn always_fails(_datum: Data, _redeemer: Data, _context: Data) -> Bool {
+validator always_fail {
+  else(_) {
     False
   }
 }
 
 test fails() fail {
-  always_fails(Void, Void, Void)
+  always_fail.else(None)
 }
 ```
 
@@ -41,13 +41,15 @@ To run the tests (and generally check everything else is okay), we can use
 `aiken check`:
 ```shellsession
 $ aiken check
-    Compiling hepta/trivial 1.0.0 (/home/sean/Cardano/Repos/aiken-trivial)
+    Compiling heptasean/aiken-trivial 2.0.0 (.)
+   Collecting all tests scenarios across all modules
       Testing ...
 
-    ┍━ trivial ━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    │ PASS [mem: 200, cpu: 23100] succeeds
-    │ PASS [mem: 200, cpu: 23100] fails
-    ┕━━━━━━━ 2 tests | 2 passed | 0 failed
+    ┍━ trivial ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │ PASS [mem:    200.0, cpu:   16.1 K] succeeds
+    │ PASS [mem:    200.0, cpu:   16.1 K] fails
+    ┕━━━━━━━━━━━━━━━ 2 tests | 2 passed | 0 failed
+
 
       Summary 2 checks, 0 errors, 0 warnings
 ```
@@ -55,30 +57,28 @@ $ aiken check
 And then `aiken build` can be used to actually build the validators:
 ```shellsession
 $ aiken build
-    Compiling hepta/trivial 1.0.0 (/home/sean/Cardano/Repos/aiken-trivial)
-   Generating project's blueprint (/home/sean/Cardano/Repos/aiken-trivial/plutus.json)
+    Compiling heptasean/aiken-trivial 2.0.0 (.)
+   Generating project's blueprint (./plutus.json)
       Summary 0 errors, 0 warnings
 ```
 
 The main result of this is the blueprint JSON file `plutus.json` containing
 the compiled bytecode, the hashes, and some metadata about our two
 validators.
+The format of this file is specified in
+[CIP 57](https://cips.cardano.org/cip/CIP-0057)
 
 ## Addresses and Plutus Files
 We can use `aiken address` to get the addresses for these validators:
 ```shellsession
-$ aiken address --validator trivial.always_succeeds
-addr_test1wquu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fg4q3ckq
-      Summary 0 errors, 0 warnings
-$ aiken address --validator trivial.always_succeeds --mainnet
-addr1wyuu2gxsvfa2lfeg7ljd6yq59dmuy4up8sm02l3vhz8h9fgwg9ye9
-      Summary 0 errors, 0 warnings
-$ aiken address --validator trivial.always_fails
-addr_test1wpn2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qrnvrgh
-      Summary 0 errors, 0 warnings
-$ aiken address --validator trivial.always_fails --mainnet
-addr1w9n2vamfahgv2n2ldmyt5wf9899lpe8ur79lhcapx844y0qcmcl8j
-      Summary 0 errors, 0 warnings
+$ aiken address --validator always_succeed
+addr_test1wz7n46v3kk40ejh7tjnswk9ax65m97rj74lk6wsllg8twac0ke9dm
+$ aiken address --validator always_succeed --mainnet
+addr1wx7n46v3kk40ejh7tjnswk9ax65m97rj74lk6wsllg8twac57dez7
+$ aiken address --validator always_fail
+addr_test1wpajrm7a0kywgn9w4h8hcddxr3xa9ah40j4vv9n52k07gdgg3aluu
+$ aiken address --validator always_fail --mainnet
+addr1w9ajrm7a0kywgn9w4h8hcddxr3xa9ah40j4vv9n52k07gdgnefrne
 ```
 
 As it turns out when checking on an explorer, both of them have been used
@@ -198,7 +198,8 @@ addresses.
 As good citizens of Cardano (and to not spend ADA that are actually worth
 anything), we use the Preprod testnet for this.
 
-We first put 5 ADA on the `always_succeeds` address with a datum `"Datum"`
+### `always_succeed`
+We first put 5 ADA on the `always_succeed` address with a datum `"Datum"`
 put in the transaction output as a hash:
 ```shellsession
 $ cardano-cli transaction build --testnet-magic 1 \
@@ -237,6 +238,7 @@ $ cardano-cli transaction build --testnet-magic 1 \
 Also, this spending transaction can be seen
 [on chain](https://preprod.beta.explorer.cardano.org/en/transaction/74cec7379d2950b30252b7c683742b74cd42df704244ea8f75d5af7fb4c0ad41).
 
+### Embedded Datum
 In order to not have to transmit the datum to the person or entity who
 wants to spend the UTxO in some off-chain side channel, we can also tell
 `cardano-cli` to embed the datum in the transaction's witness set:
@@ -272,6 +274,7 @@ And also just like in the first example, we can see the successful spending
 from the `always_succeeds` script
 [on chain](https://preprod.beta.explorer.cardano.org/en/transaction/6e0bd67cd5eec2329f45cf093ab06e0868f6f467b6e6158267952bdcfae4534b).
 
+### Inline Datum
 With the implementation of [CIP 32](https://cips.cardano.org/cip/CIP-0032)
 in the Vasil hard fork, it became possible to use inline datums instead of
 datum hashes:
@@ -307,7 +310,8 @@ $ cardano-cli transaction build --testnet-magic 1 \
 And this transaction gets also executed successfully
 [on chain](https://preprod.beta.explorer.cardano.org/en/transaction/dcdaccaa80239d316b88ad835267c8c0b6dab7e75b9830832e04fabeed8bd1d3).
 
-Since this gets a little boring, we will now fund the `always_fails`
+### `always_fail`
+Since this gets a little boring, we will now fund the `always_fail`
 script:
 ```shellsession
 $ cardano-cli transaction build --testnet-magic 1 \
@@ -544,3 +548,12 @@ What is still obviously missing and outside the scope of this is:
   How do we use the standard library to analyse what is in the transaction?
 * What can other types of validators for minting and staking do?
 * How do we create a frontend, a dApp using our validators?
+
+## Changelog
+*2024-06-21:*
+* Initial version with Aiken v1.0.29-alpha and Plutus v2
+*2025-07-29:*
+* Update for Aiken v1.1.19 and Plutus v3
+* TODO: Replace all `beta.explorer.cardano.org` links by Cardanoscan
+* TODO: New test transactions
+* TODO: New screenshots
